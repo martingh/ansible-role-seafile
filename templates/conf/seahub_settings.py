@@ -1,5 +1,5 @@
 # secret key
-SECRET_KEY = "{{ _seafile_seahub_settings_secret_key.stdout }}"
+SECRET_KEY = "{{ _seafile_seahub_settings_secret_key }}"
 
 ## email settings
 
@@ -115,3 +115,55 @@ DATABASES = {
 {% if not seafile_allowed_hosts %}#{% endif %}
 ALLOWED_HOSTS = {{ seafile_allowed_hosts }}
 
+# Log Setup - Use Syslog
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(process)-5d %(thread)d %(name)-50s %(levelname)-8s %(message)s'
+        },
+        'standard': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s:%(lineno)s %(funcName)s %(message)s'
+        },
+        'simple': {
+            'format': '[%(asctime)s] %(name)s %(levelname)s %(message)s',
+            'datefmt': '%d/%b/%Y %H:%M:%S'
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'syslog': {
+            'class': 'logging.handlers.SysLogHandler',
+            'address': '/dev/log',
+            'formatter': 'standard'
+        },
+    },
+    'loggers': {
+        # root logger
+        # All logs printed by Seahub and any third party libraries will be handled by this logger.
+        '': {
+            'handlers': ['console', 'syslog'],
+            'level': 'INFO', # Logs when log level is higher than info. Level can be any one of DEBUG, INFO, WARNING, ERROR, CRITICAL.
+            'disabled': False
+        },
+        # This logger recorded logs printed by Django Framework. For example, when you see 5xx page error, you should check the logs recorded by this logger.
+        'django.request': {
+            'handlers': ['console', 'syslog'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

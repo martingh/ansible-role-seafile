@@ -1,0 +1,16 @@
+---
+- name: create seafile ldap user
+  ipa_user:
+    name: '{{ seafile_ldap_user }}'
+    state: present
+    givenname: seafile
+    sn: ldap
+    # password is expired, ldap binds can still be used, which is all we need. That is also not
+    # likely to change: https://pagure.io/freeipa/issue/1539
+    krbpasswordexpiration: 19700101000000
+    ipa_host: '{{ ipa_server }}'
+    password: '{{ seafile_ldap_password }}'
+    ipa_user: admin
+    ipa_pass: '{{ ipaserver_admin_password }}'
+  no_log: true
+  

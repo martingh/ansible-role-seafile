@@ -1,0 +1,13 @@
+---
+- name: determine seafile version
+  block:
+  - find:
+      paths: /usr/share/seafile
+      recurse: no
+      file_type: directory
+      patterns: 'seafile-server*'
+    register: result
+  - set_fact:
+      seafile_install_version: "{{ result.files[0].path | regex_replace('^.*-([0-9.]+)$', '\\1') }}"
+  - debug:
+      msg: '{{ seafile_install_version }}'

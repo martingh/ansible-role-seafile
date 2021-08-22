@@ -5,12 +5,15 @@ Description=Seafile
 After=network.target {% if seafile_backend != 'sqlite' and seafile_db_host == '127.0.0.1' %} {{ seafile_backend }}.service {% endif %}
 
 [Service]
-Type=oneshot
 ExecStart={{ seafile_org_dir }}/seafile-server-latest/seafile.sh start
 ExecStop={{ seafile_org_dir }}/seafile-server-latest/seafile.sh stop
-RemainAfterExit=yes
 User={{ seafile_user }}
 Group=seafile
+
+# Use forking type to be able to have Restart functionality (oneshot does not allow it)
+Type=forking
+Restart=on-failure
+RestartSec=40
 
 [Install]
 WantedBy=multi-user.target

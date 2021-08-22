@@ -1,0 +1,19 @@
+---
+- name:       provision ssl dir
+  file:
+    dest:     /etc/ssl/private
+    state:    directory
+    owner:    root
+    group:    root
+    mode:     0700
+
+- include_role:
+    name: ansible-freeipa-signed-service
+  vars:
+    - freeipa_signed_service_certificate_file:       /etc/ssl/private/server.crt.pem
+    - freeipa_signed_service_certificate_key:        /etc/ssl/private/server.key.pem
+    - freeipa_signed_service_dependant_service:      http
+    - freeipa_signed_service_dependant_service_unit: nginx
+
+- include_role:
+    name: ansible-role-nginx

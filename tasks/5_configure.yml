@@ -9,19 +9,6 @@
     group:              '{{ seafile_user }}'
     mode:               '{{ item.exec | default(false) | ternary(0750,0640) }}'
   with_items:
-    # configuration files
-    - src:              'ccnet/seafile.ini'
-      dest:             '{{ seafile_ccnet_dir }}/'
-    - src:              'conf/ccnet.conf'
-      dest:             '{{ seafile_conf_dir }}/'
-    - src:              'conf/seafile.conf'
-      dest:             '{{ seafile_conf_dir }}/'
-    - src:              'conf/seafdav.conf'
-      dest:             '{{ seafile_conf_dir }}/'
-    - src:              'conf/seahub_settings.py'
-      dest:             '{{ seafile_conf_dir }}/'
-    - src:              'conf/gunicorn.conf'
-      dest:             '{{ seafile_conf_dir }}/'
     # handy environment file to be sourced when doing things manually
     - src:              'bin/environment'
       dest:             '{{ seafile_org_dir + "/bin/" }}'
@@ -29,12 +16,16 @@
     - src:              'bin/garbage-collect'
       dest:             '{{ seafile_org_dir + "/bin/" }}'
       exec:             true
+    - src:              'bin/fs-check'
+      dest:             '{{ seafile_org_dir + "/bin/" }}'
+      exec:             true
   notify:               restart_seafile
 
+# TODO: Similarly to garbage collection integrity check should be run from time to time
+#       - [Generic for all services] log info (also from cron jobs) should be piped to rsyslog so admin can see problems
 - name:       provision crontabs
   cron:
     name:       '{{ item.name }}'
-    user:       '{{ seafile_user }}'
     job:        '{{ seafile_org_dir + "/bin/" + item.script }}'
     minute:     '{{ item.min | default(omit) }}'
     hour:       '{{ item.hou | default(omit) }}'
@@ -49,37 +40,52 @@
       hou:        5
       dow:        7
       enabled:    '{{ seafile_cron_gc_enabled }}'
+    - name:       Weekly fsck
+      script:     fs-check
+      min:        0
+      hou:        4
+      dow:        7
+      enabled:    '{{ seafile_cron_fsck_enabled }}'
 
-- name:       move the default avatars directory out of the way
-  become:      yes
-  become_user: '{{ seafile_user }}'
-  shell:      >
-              ORI='{{ seafile_latest_dir }}/seahub/media/avatars';
-              test -e $ORI && (test -L $ORI || mv -v $ORI ${ORI}.ori)
-  register:     _shell
-  changed_when: _shell.stdout_lines|length > 0
 
-- name:       link media folders with local custom data
-  become:      yes
-  become_user: '{{ seafile_user }}'
-  file:
-    src:      '{{ seafile_seahubdata_dir +"/"+ item }}'
-    dest:     '{{ seafile_latest_dir +"/seahub/media/" + item }}'
-    owner:    '{{ seafile_user }}'
-    group:    '{{ seafile_user }}'
-    mode:     0755
-    state:    link
-    force:    yes
-  with_items:
-  - avatars
-  - custom
+# TODO Customized avatar/media handling
+# Because of the way seahub is structured it seems this is not going to work atm:
+# - paths like LOGO_PATH defined in conf/seahub_settings.py are defined relative to MEDIA_ROOT
+# - in https://github.com/haiwen/seahub/blob/master/seahub/settings.py MEDIA_ROOT is defined relative to
+#   PROJECT_ROOT. But alot of files (like locales) are later referred to relative to PROJECT_ROOT
+# - This means one would have to copy many of the things stored in /usr/share/seafile/seafile-server-6.3.4/seahub
+#   (or link to those) for just a bit of customization
+# -> seahub would just need a config parameter for changing MEDIA_ROOT to solve this
 
-- name:       copy default avatars to custom data dir
-  become:      yes
-  become_user: '{{ seafile_user }}'
-  shell:      |
-              ORI='{{ seafile_latest_dir }}/seahub/media/avatars';
-              rsync -ai ${ORI}.ori/ $ORI/
-  register:     _shell
-  changed_when: _shell.stdout_lines|length > 0
-
+# - name:       move the default avatars directory out of the way
+#   become:      yes
+#   become_user: '{{ seafile_user }}'
+#   shell:      >
+#               ORI='{{ seafile_latest_dir }}/seahub/media/avatars';
+#               test -e $ORI && (test -L $ORI || mv -v $ORI ${ORI}.ori)
+#   register:     _shell
+#   changed_when: _shell.stdout_lines|length > 0
+#
+# - name:       link media folders with local custom data
+#   become:      yes
+#   become_user: '{{ seafile_user }}'
+#   file:
+#     src:      '{{ seafile_seahubdata_dir +"/"+ item }}'
+#     dest:     '{{ seafile_latest_dir +"/seahub/media/" + item }}'
+#     owner:    '{{ seafile_user }}'
+#     group:    '{{ seafile_user }}'
+#     mode:     0755
+#     state:    link
+#     force:    yes
+#   with_items:
+#   - avatars
+#   - custom
+#
+# - name:       copy default avatars to custom data dir
+#   become:      yes
+#   become_user: '{{ seafile_user }}'
+#   shell:      |
+#               ORI='{{ seafile_latest_dir }}/seahub/media/avatars';
+#               rsync -ai ${ORI}.ori/ $ORI/
+#   register:     _shell
+#   changed_when: _shell.stdout_lines|length > 0

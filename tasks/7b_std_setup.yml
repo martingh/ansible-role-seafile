@@ -1,0 +1,31 @@
+---
+- name: Copy the seafile distribution into writeable area
+  copy:
+    remote_src:         true
+    src:                '{{ seafile_distrib_dir }}'
+    dest:               '{{ seafile_org_dir }}'
+    owner:              '{{ seafile_user }}'
+    group:              '{{ seafile_user }}'
+
+- name: Execute setup script
+  command: >
+      python3 '{{ seafile_install_dir + "/setup-seafile-mysql.py" }}' auto
+      --server-name '{{ seafile_org_name }}'
+      --server-ip '{{ seafile_ip_or_domain }}'
+      --fileserver-port '{{ seafile_httpserver_port }}'
+      --seafile-dir '{{ seafile_data_dir }}'
+      --use-existing-db 1
+      --mysql-host '{{ seafile_db_host }}'
+      --mysql-port '{{ seafile_db_port }}'
+      --mysql-user '{{ seafile_db_user }}'
+      --mysql-user-passwd '{{ seafile_db_pass }}'
+      --mysql-user-host '{{ seafile_ip_or_domain }}'
+      --ccnet-db ccnet
+      --seafile-db seafile
+      --seahub-db seahub
+  args:
+    creates: '{{ seafile_data_dir }}'
+  become_user: '{{ seafile_user }}'
+  become:      yes
+  environment: '{{ SEAFILE_ENVIRONMENT }}'
+  no_log: true

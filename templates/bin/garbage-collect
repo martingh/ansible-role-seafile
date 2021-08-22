@@ -2,14 +2,13 @@
 
 on_exit() {
     sleep 5
-    {{ seafile_latest_dir }}/seafile.sh start
+    systemctl start seafile
 }
 trap on_exit TERM KILL EXIT
 
-{{ seafile_latest_dir }}/seafile.sh stop
+systemctl stop seafile
 if [ $? -eq 0 ]
 then
     sleep 30
-    {{ seafile_latest_dir }}/seaf-gc.sh
+    runuser -u '{{ seafile_user }}' '{{ seafile_latest_dir + "/seaf-gc.sh" }}'
 fi
-

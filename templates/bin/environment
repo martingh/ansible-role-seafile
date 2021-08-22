@@ -1,5 +1,7 @@
 ## {{ansible_managed}}
 
+# TODO what to do with this: the environment now (correctly) points to a concrete version, instead of seafile-server-latest.
+# But this file will need to be kept accross upgrades.
 {% for var in SEAFILE_ENVIRONMENT|dictsort %}
 export {{ var[0] }}="{{ var[1] }}"
 {% endfor %}

@@ -3,15 +3,15 @@
   become:               yes
   become_user:          '{{ seafile_user }}'
   template:
-    src:                    bin/init_admin.py
-    dest:                   '{{ seafile_latest_dir }}/init_admin.py'
-    mode:                   0700
+    src:                bin/init_admin.py
+    dest:               '{{ seafile_org_dir }}/bin/init_admin.py'
+    mode:               0700
 
 - name:                 provision admin user
+  no_log:              true
   become:               yes
   become_user:          '{{ seafile_user }}'
-  command:              /usr/bin/env python {{ seafile_latest_dir }}/init_admin.py
+  command:              /usr/bin/env python {{ seafile_org_dir }}/bin/init_admin.py
   environment:          '{{ SEAFILE_ENVIRONMENT }}'
   register:             seafile_init_admin
   changed_when:         seafile_init_admin.stdout.find("changed=false") == -1
-

@@ -1,40 +1,56 @@
 ---
-- include:  1_prerequisites.yml
-  tags:
-  - seafile_prerequisites
+# TODO: Make it possible to switch this off or remove altogether
+# - include:  1_prerequisites.yml
+#   tags:
+#   - seafile_prerequisites
 
 - include:  2_provision.yml
   tags:
   - seafile_provision
 
-- include:  3_download.yml
-  tags:
-  - seafile_download
-
-- include:  4_preconfigure.yml
-  tags:
-  - seafile_preconfigure
-  - seafile_configure
+# TODO: Make it possible to switch this off or remove altogether
+# - include:  3_download.yml
+#   tags:
+#   - seafile_download
 
 - include:  5_configure.yml
   tags:
   - seafile_configure
 
-- include:  6_customize.yml
+- include:  5b_ldap.yml
   tags:
-  - seafile_customize
+  - seafile_ldap
+
+# TODO: Make it possible to switch this off or remove altogether
+#- include:  6_customize.yml
+#  tags:
+#  - seafile_customize
 
 - include:  7_database.yml
   tags:
   - seafile_database
 
+
+- include:  7b_std_setup.yml
+  tags:
+  - seafile_setup
+
 - include:  8_init_admin.yml
   tags:
   - seafile_init_admin
 
+- include:  8b_refine_config.yml
+  tags:
+  - seafile_configure
+
 - include:  9_init.yml
   tags:
   - seafile_init
+
+- include:  10_webserver.yml
+  tags:
+  - seafile_webserver_proxy
+
 
 - debug:
     msg: >

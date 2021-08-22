@@ -23,7 +23,7 @@
 - name:         provision systemd services
   template:
     src:        'systemd/{{ item.name }}.service'
-    dest:       '/lib/systemd/system/'
+    dest:       '/etc/systemd/system/'
   when:         ansible_service_mgr == "systemd"
   with_items:   '{{ SEAFILE_INIT_SCRIPTS }}'
   notify:
@@ -40,6 +40,16 @@
   when:         ansible_service_mgr == "upstart"
   notify:       restart_seafile
 
+# TODO does this work on older systemd containers, despite using a different systemd ansible module?
+#- name:         enable seafile
+#  service:
+#    name:       'seafile'
+#    enabled:    yes
+#- name:         enable seahub
+#  service:
+#    name:       'seahub'
+#    enabled:    yes
+
 - name:         enable init services
   service:
     name:       '{{ item.name }}'
@@ -47,4 +57,3 @@
   when:         ansible_os_family in item.os_family
   with_items:   '{{ SEAFILE_INIT_SCRIPTS }}'
   notify:       restart_seafile
-

@@ -1,19 +1,5 @@
 ---
-- name: provision seafile user
-  user:
-    name:               '{{ seafile_user }}'
-    state:              present
-    comment:            Seafile
-    createhome:         yes
-    generate_ssh_key:   no
-    home:               '{{ seafile_user_home }}'
-    move_home:          yes
-    system:             yes
-    uid:                '{{ seafile_user_uid|default(omit) }}'
-
 - name: provision directories
-  become:               yes
-  become_user:          '{{ seafile_user }}'
   file:
     path:               '{{ item }}'
     owner:              '{{ seafile_user }}'
@@ -23,13 +9,11 @@
   with_items:
     - '{{ seafile_org_dir                     }}'
     - '{{ seafile_org_dir + "/bin"            }}'
-    - '{{ seafile_org_dir + "/installed"      }}'
-    - '{{ seafile_ccnet_dir                   }}'
-    - '{{ seafile_conf_dir                    }}'
-    - '{{ seafile_log_dir                     }}'
-    - '{{ seafile_data_dir                    }}'
-    - '{{ seafile_seahubdata_dir              }}'
-    - '{{ seafile_seahubdata_dir + "/avatars" }}'
-    - '{{ seafile_seahubdata_dir + "/custom"  }}'
-    - '{{ seafile_mylib_dir                   }}'
-
+#    - '{{ seafile_ccnet_dir                   }}'
+#    - '{{ seafile_conf_dir                    }}'
+#    - '{{ seafile_log_dir                     }}'
+#    - '{{ seafile_data_dir                    }}'
+#    - '{{ seafile_seahubdata_dir              }}'
+#    - '{{ seafile_seahubdata_dir + "/avatars" }}'
+#    - '{{ seafile_seahubdata_dir + "/custom"  }}'
+#    - '{{ seafile_mylib_dir                   }}'

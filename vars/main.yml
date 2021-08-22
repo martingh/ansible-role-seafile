@@ -26,6 +26,11 @@ SEAFILE_INIT_SCRIPTS:
     os_family:
       - 'RedHat'
 
+# moved to vars, seems hardcoded in seafile scripts
+seafile_log_dir:        '{{ seafile_var_data + "/logs" }}'
+seafile_install_dir:    '{{ seafile_var_data + "/seafile-server-" + seafile_install_version }}'
+
+
 DEPENDENCY_PACKAGES_APT:
 - python-setuptools
 - python-simplejson
@@ -45,11 +50,13 @@ DEPENDENCY_PACKAGES_RPM:
 - sudo
 
 SEAFILE_ENVIRONMENT:
-  LD_LIBRARY_PATH:      '{{ seafile_latest_dir }}/seafile/lib/:{{ seafile_latest_dir }}/seafile/lib64:${LD_LIBRARY_PATH}'
-  PYTHONPATH:           '{{ seafile_latest_dir }}/seafile/lib/python2.6/site-packages:{{ seafile_latest_dir }}/seafile/lib64/python2.6/site-packages:{{ seafile_latest_dir }}/seahub/thirdpart:{{ seafile_latest_dir }}/seafile/lib/python2.7/site-packages:{{ seafile_latest_dir }}/seafile/lib64/python2.7/site-packages:{{ ansible_env.PYTHONPATH | default("") }}'
+  LD_LIBRARY_PATH:      '{{ seafile_install_dir }}/seafile/lib/:{{ seafile_install_dir }}/seafile/lib64:${LD_LIBRARY_PATH}'
+  PYTHONPATH:           '{{ seafile_install_dir }}:{{ seafile_install_dir }}/seafile/lib64/python3.6/site-packages:{{ seafile_install_dir }}/seahub/thirdpart:{{ ansible_env.PYTHONPATH | default("") }}'
   CCNET_CONF_DIR:       '{{ seafile_ccnet_dir }}'
   SEAFILE_CONF_DIR:     '{{ seafile_data_dir }}'
   SEAFILE_CENTRAL_CONF_DIR:     '{{ seafile_conf_dir }}'
+  PYTHON:               '/usr/bin/python3'
+
 
 SEAFILE_CCNET_INIT:     '{{ seafile_latest_dir }}/seafile/bin/ccnet-init'
 SEAFILE_SERVER_INIT:    '{{ seafile_latest_dir }}/seafile/bin/seaf-server-init'
@@ -59,7 +66,4 @@ SEAFILE_AVATAR_SRC:     '{{ seafile_seahubdata_dir }}/avatars'
 SEAFILE_AVATAR_DEST:    '{{ seafile_latest_dir }}/seahub/media/avatars'
 SEAFILE_DOCS_SRC:       '{{ seafile_latest_dir }}/seafile/docs'
 SEAFILE_DOCS_DEST:      '{{ seafile_data_dir }}/library-template'
-
-# moved to vars, seems hardcoded in seafile scripts
-seafile_log_dir:            '{{ seafile_org_dir + "/logs" }}'
 

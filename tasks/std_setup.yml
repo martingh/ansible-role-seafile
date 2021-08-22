@@ -1,0 +1,20 @@
+- name: Execute setup script
+    command: >
+      python3 ./setup-seafile-mysql.py auto
+      --server-name {{ seafile_instance_name }}
+      --server-ip {{ seafile_domains|first }}
+      --fileserver-port {{ seafile_file_port|int }}
+      --seafile-dir {{ seafile_data_directory }}
+      --use-existing-db 0
+      --mysql-host localhost
+      --mysql-port {{ mariadb_port|default(mysql_port)|int }}
+      --mysql-user {{ seafile_database_user }}
+      --mysql-user-passwd {{ seafile_database_password }}
+      --mysql-root-passwd {{ mariadb_root_password|default(mysql_root_password) }}
+      --ccnet-db {{ seafile_database_name_prefix }}-ccnet
+      --seafile-db {{ seafile_database_name_prefix }}-seafile
+      --seahub-db {{ seafile_database_name_prefix }}-seahub
+    args:
+      chdir: '{{ seafile_app_directory }}/seafile-server'
+      creates: '{{ seafile_data_directory }}'
+    become: '{{ seafile_daemon_user }}'

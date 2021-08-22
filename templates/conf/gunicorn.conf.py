@@ -3,11 +3,10 @@ import os
 daemon = True
 workers = 5
 
-# default localhost:8000
-bind = "0.0.0.0:{{ seafile_gunicorn_port }}"
+bind = "127.0.0.1:{{ seafile_gunicorn_port }}"
 
 # Pid
-pids_dir = '{{ seafile_org_dir + "/pids" }}'
+pids_dir = '{{ seafile_var_data + "/pids" }}'
 pidfile = os.path.join(pids_dir, 'seahub.pid')
 
 # Logging
